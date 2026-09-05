@@ -181,6 +181,31 @@ class TaskServiceTest {
     }
 
     @Test
+    @DisplayName("Atanan kullanıcı ID boş string ise kullanıcı aranmadan görev oluşturulmalı")
+    void createTask_WhenAssignedUserIsBlank_ShouldCreateTaskSuccessfully() {
+        // Given
+        CreateTaskRequest request = new CreateTaskRequest(
+                "Boş Kullanıcılı Görev",
+                "Açıklama",
+                TaskPriority.LOW,
+                sampleProject.getPublicId(),
+                "   "
+        );
+
+        when(projectRepository.findByPublicId(sampleProject.getPublicId())).thenReturn(Optional.of(sampleProject));
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        TaskResponse response = taskService.createTask(request);
+
+        // Then
+        assertThat(response).isNotNull();
+        assertThat(response.assignedUserPublicId()).isNull();
+        verify(userRepository, never()).findByPublicId(any());
+        verify(taskRepository, times(1)).save(any(Task.class));
+    }
+
+    @Test
     @DisplayName("Görev durumu başarıyla güncellenmeli")
     void updateTaskStatus_WhenTaskExists_ShouldUpdateStatus() {
         // Given
