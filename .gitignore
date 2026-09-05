@@ -1,8 +1,11 @@
-HELP.md
-HANDOFF.md
+### General ###
 **/.DS_Store
-target/
-.mvn/wrapper/maven-wrapper.jar
+.env
+
+### Backend ###
+backend/HELP.md
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -24,7 +27,6 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
 build/
@@ -34,7 +36,9 @@ build/
 ### VS Code ###
 .vscode/
 
-.env
+### Office Locks ###
+.~lock.*
+~$*
 
 ### Frontend ###
 frontend/node_modules/

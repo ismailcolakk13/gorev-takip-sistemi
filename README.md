@@ -260,11 +260,12 @@ Projede **Unit (Birim)** ve **Integration (Entegrasyon)** testleri titizlikle ku
 
 ```bash
 # Tüm testleri çalıştırmak için:
+cd backend
 ./mvnw test
 
 # JaCoCo test kapsamı raporunu üretmek için:
 ./mvnw test jacoco:report
-# Rapor konumu: target/site/jacoco/index.html
+# Rapor konumu: backend/target/site/jacoco/index.html
 ```
 
 ---
@@ -294,6 +295,7 @@ docker compose up -d mysql
 
 ### 3. Backend Uygulamasını Başlatın
 ```bash
+cd backend
 ./mvnw clean spring-boot:run
 ```
 Uygulama **`http://localhost:8080`** portundan yayına başlayacaktır.
@@ -302,6 +304,7 @@ Uygulama **`http://localhost:8080`** portundan yayına başlayacaktır.
 ```bash
 docker compose up -d sonarqube
 
+cd backend
 ./mvnw clean verify sonar:sonar \
   -Dsonar.projectKey=gorev-takip-sistemi \
   -Dsonar.host.url=http://localhost:9000 \
@@ -568,11 +571,12 @@ The backend features both isolated Unit tests and complete Integration test suit
 
 ```bash
 # Execute test suite:
+cd backend
 ./mvnw test
 
 # Generate JaCoCo coverage report:
 ./mvnw test jacoco:report
-# Report output: target/site/jacoco/index.html
+# Report output: backend/target/site/jacoco/index.html
 ```
 
 ---
@@ -602,6 +606,7 @@ docker compose up -d mysql
 
 ### 3. Launch Backend Application
 ```bash
+cd backend
 ./mvnw clean spring-boot:run
 ```
 The REST API server will run on **`http://localhost:8080`**.
@@ -610,6 +615,7 @@ The REST API server will run on **`http://localhost:8080`**.
 ```bash
 docker compose up -d sonarqube
 
+cd backend
 ./mvnw clean verify sonar:sonar \
   -Dsonar.projectKey=gorev-takip-sistemi \
   -Dsonar.host.url=http://localhost:9000 \
