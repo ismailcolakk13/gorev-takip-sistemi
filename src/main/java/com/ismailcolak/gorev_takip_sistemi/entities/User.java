@@ -28,7 +28,9 @@ public class User {
 
 
 
-    public User() {}
+    public User() {
+        // Spring JPA için bilerek boş constructor oluşturuldu
+    }
 
 
     public Long getUserId() {

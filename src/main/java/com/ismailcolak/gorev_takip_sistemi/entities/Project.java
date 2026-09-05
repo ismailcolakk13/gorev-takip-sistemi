@@ -20,7 +20,9 @@ public class Project {
 
 
 
-    public Project() {}
+    public Project() {
+        // Spring JPA için bilerek boş constructor oluşturuldu
+    }
 
     public Long getProjectId() {
         return projectId;

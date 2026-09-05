@@ -3,7 +3,6 @@ package com.ismailcolak.gorev_takip_sistemi.controllers;
 import com.ismailcolak.gorev_takip_sistemi.dto.request.CreateTaskRequest;
 import com.ismailcolak.gorev_takip_sistemi.dto.request.UpdateTaskStatusRequest;
 import com.ismailcolak.gorev_takip_sistemi.dto.response.TaskResponse;
-import com.ismailcolak.gorev_takip_sistemi.entities.TaskStatus;
 import com.ismailcolak.gorev_takip_sistemi.services.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

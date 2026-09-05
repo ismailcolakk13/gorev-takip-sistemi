@@ -52,14 +52,14 @@ public class CommentService {
         List<Comment> comments = commentRepository.findByTask_PublicId(taskPublicId);
 
         return comments.stream()
-                .map(c -> mapToResponse(c)).toList();
+                .map(this::mapToResponse).toList();
     }
 
     public List<CommentResponse> getCommentsByUser(String userPublicId) {
         List<Comment> comments = commentRepository.findByCommentedUser_PublicId(userPublicId);
 
         return comments.stream()
-                .map(c -> mapToResponse(c)).toList();
+                .map(this::mapToResponse).toList();
     }
 
 
@@ -73,9 +73,7 @@ public class CommentService {
     }
 
     private boolean isMemberOfProject(User user, Project project) {
-        boolean isMember = user.getProjects().stream()
+        return user.getProjects().stream()
                 .anyMatch(p -> p.getPublicId().equals(project.getPublicId()));
-
-        return isMember;
     }
 }

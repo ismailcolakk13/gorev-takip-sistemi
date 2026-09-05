@@ -41,7 +41,9 @@ public class Task {
 
 
 
-    public Task() {}
+    public Task() {
+        // Spring JPA için bilerek boş constructor oluşturuldu
+    }
 
     public Long getTaskId() {
         return taskId;

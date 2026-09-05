@@ -36,10 +36,8 @@ public class TaskService {
                     .orElseThrow(() -> new IllegalArgumentException("Görev oluşturma başarısız\nKullanıcı bulunamadı: " + request.assignedUserPublicId()));
         }
 
-        if (user != null) {
-            if (!isMemberOfProject(user, project)) {
-                throw new IllegalArgumentException("Görev oluşturma başarısız\nKullanıcı bu projede değil:" + user.getPublicId());
-            }
+        if (user != null && !isMemberOfProject(user, project)) {
+            throw new IllegalArgumentException("Görev oluşturma başarısız\nKullanıcı bu projede değil:" + user.getPublicId());
         }
 
         Task task = new Task();
@@ -88,7 +86,7 @@ public class TaskService {
         List<Task> tasks = taskRepository.findByProject_PublicId(projectPublicId);
 
         return tasks.stream()
-                .map(t -> mapToResponse(t))
+                .map(this::mapToResponse)
                 .toList();
     }
 
@@ -96,7 +94,7 @@ public class TaskService {
         List<Task> tasks = taskRepository.findByAssignedUser_PublicId(userPublicId);
 
         return tasks.stream()
-                .map(t -> mapToResponse(t))
+                .map(this::mapToResponse)
                 .toList();
     }
 
@@ -121,10 +119,8 @@ public class TaskService {
     }
 
     private boolean isMemberOfProject(User user, Project project) {
-        boolean isMember = user.getProjects().stream()
+        return user.getProjects().stream()
                 .anyMatch(p -> p.getPublicId().equals(project.getPublicId()));
-
-        return isMember;
     }
 }
 

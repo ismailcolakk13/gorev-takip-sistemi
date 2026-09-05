@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -132,6 +133,29 @@ class TaskServiceTest {
     }
 
     @Test
+    @DisplayName("Kullanıcı bulunamazsa görev oluştururken IllegalArgumentException fırlatılmalı")
+    void createTask_WhenUserNotFound_ShouldThrowIllegalArgumentException() {
+        // Given
+        CreateTaskRequest request = new CreateTaskRequest(
+                "Görev Başlığı",
+                "Detay",
+                TaskPriority.MEDIUM,
+                sampleProject.getPublicId(),
+                "olmayan-kullanici-id"
+        );
+
+        when(projectRepository.findByPublicId(sampleProject.getPublicId())).thenReturn(Optional.of(sampleProject));
+        when(userRepository.findByPublicId("olmayan-kullanici-id")).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.createTask(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Kullanıcı bulunamadı");
+
+        verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    @Test
     @DisplayName("Atanan kullanıcı olmadan görev başarıyla oluşturulmalı")
     void createTask_WithoutAssignedUser_ShouldCreateTaskSuccessfully() {
         // Given
@@ -180,6 +204,21 @@ class TaskServiceTest {
     }
 
     @Test
+    @DisplayName("Görev bulunamazsa durum güncellenirken IllegalArgumentException fırlatılmalı")
+    void updateTaskStatus_WhenTaskNotFound_ShouldThrowIllegalArgumentException() {
+        // Given
+        String taskPublicId = "olmayan-gorev-id";
+        UpdateTaskStatusRequest request = new UpdateTaskStatusRequest(TaskStatus.COMPLETED);
+
+        when(taskRepository.findByPublicId(taskPublicId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.updateTaskStatus(taskPublicId, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Görev bulunamadı");
+    }
+
+    @Test
     @DisplayName("Proje üyesi olan kullanıcıya görev sonradan atanabilmeli")
     void assignTask_WhenUserIsProjectMember_ShouldAssignSuccessfully() {
         // Given
@@ -201,5 +240,138 @@ class TaskServiceTest {
         assertThat(response).isNotNull();
         assertThat(response.assignedUserPublicId()).isEqualTo(sampleUser.getPublicId());
         verify(taskRepository, times(1)).save(task);
+    }
+
+    @Test
+    @DisplayName("Görev bulunamazsa görev atarken IllegalArgumentException fırlatılmalı")
+    void assignTask_WhenTaskNotFound_ShouldThrowIllegalArgumentException() {
+        // Given
+        String taskPublicId = "olmayan-gorev-id";
+        String userPublicId = sampleUser.getPublicId();
+
+        when(taskRepository.findByPublicId(taskPublicId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.assignTask(taskPublicId, userPublicId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Görev bulunamadı");
+    }
+
+    @Test
+    @DisplayName("Kullanıcı bulunamazsa görev atarken IllegalArgumentException fırlatılmalı")
+    void assignTask_WhenUserNotFound_ShouldThrowIllegalArgumentException() {
+        // Given
+        Task task = new Task();
+        task.setTaskName("Mevcut Görev");
+        task.setProject(sampleProject);
+        String taskPublicId = task.getPublicId();
+        String userPublicId = "olmayan-kullanici-id";
+
+        when(taskRepository.findByPublicId(taskPublicId)).thenReturn(Optional.of(task));
+        when(userRepository.findByPublicId(userPublicId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.assignTask(taskPublicId, userPublicId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Kullanıcı bulunamadı");
+    }
+
+    @Test
+    @DisplayName("Kullanıcı proje üyesi değilse görev atarken IllegalArgumentException fırlatılmalı")
+    void assignTask_WhenUserIsNotProjectMember_ShouldThrowIllegalArgumentException() {
+        // Given (sampleUser sampleProject üyesi değil)
+        Task task = new Task();
+        task.setTaskName("Mevcut Görev");
+        task.setProject(sampleProject);
+        String taskPublicId = task.getPublicId();
+        String userPublicId = sampleUser.getPublicId();
+
+        when(taskRepository.findByPublicId(taskPublicId)).thenReturn(Optional.of(task));
+        when(userRepository.findByPublicId(userPublicId)).thenReturn(Optional.of(sampleUser));
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.assignTask(taskPublicId, userPublicId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("bu projede");
+    }
+
+    @Test
+    @DisplayName("Projeye ait görevler başarıyla listelenmeli")
+    void getTasksByProject_ShouldReturnTasks() {
+        // Given
+        Task task = new Task();
+        task.setTaskName("Proje Görevi");
+        task.setProject(sampleProject);
+        task.setAssignedUser(sampleUser);
+        String projectPublicId = sampleProject.getPublicId();
+
+        when(taskRepository.findByProject_PublicId(projectPublicId)).thenReturn(List.of(task));
+
+        // When
+        List<TaskResponse> responses = taskService.getTasksByProject(projectPublicId);
+
+        // Then
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).taskName()).isEqualTo("Proje Görevi");
+        assertThat(responses.get(0).projectPublicId()).isEqualTo(projectPublicId);
+        verify(taskRepository, times(1)).findByProject_PublicId(projectPublicId);
+    }
+
+    @Test
+    @DisplayName("Kullanıcıya atanan görevler başarıyla listelenmeli")
+    void getTasksByAssignedUser_ShouldReturnTasks() {
+        // Given
+        Task task = new Task();
+        task.setTaskName("Kullanıcı Görevi");
+        task.setProject(sampleProject);
+        task.setAssignedUser(sampleUser);
+        String userPublicId = sampleUser.getPublicId();
+
+        when(taskRepository.findByAssignedUser_PublicId(userPublicId)).thenReturn(List.of(task));
+
+        // When
+        List<TaskResponse> responses = taskService.getTasksByAssignedUser(userPublicId);
+
+        // Then
+        assertThat(responses).hasSize(1);
+        assertThat(responses.get(0).taskName()).isEqualTo("Kullanıcı Görevi");
+        assertThat(responses.get(0).assignedUserPublicId()).isEqualTo(userPublicId);
+        verify(taskRepository, times(1)).findByAssignedUser_PublicId(userPublicId);
+    }
+
+    @Test
+    @DisplayName("Mevcut görev publicId ile başarıyla getirilmeli")
+    void getTaskByPublicId_WhenTaskExists_ShouldReturnTask() {
+        // Given
+        Task task = new Task();
+        task.setTaskName("Mevcut Görev");
+        task.setProject(sampleProject);
+        task.setAssignedUser(sampleUser);
+        String taskPublicId = task.getPublicId();
+
+        when(taskRepository.findByPublicId(taskPublicId)).thenReturn(Optional.of(task));
+
+        // When
+        TaskResponse response = taskService.getTaskByPublicId(taskPublicId);
+
+        // Then
+        assertThat(response).isNotNull();
+        assertThat(response.taskName()).isEqualTo("Mevcut Görev");
+        assertThat(response.publicId()).isEqualTo(taskPublicId);
+        verify(taskRepository, times(1)).findByPublicId(taskPublicId);
+    }
+
+    @Test
+    @DisplayName("Görev bulunamazsa publicId ile getirirken IllegalArgumentException fırlatılmalı")
+    void getTaskByPublicId_WhenTaskNotFound_ShouldThrowIllegalArgumentException() {
+        // Given
+        String taskPublicId = "olmayan-gorev-id";
+
+        when(taskRepository.findByPublicId(taskPublicId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.getTaskByPublicId(taskPublicId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Görev bulunamadı");
     }
 }

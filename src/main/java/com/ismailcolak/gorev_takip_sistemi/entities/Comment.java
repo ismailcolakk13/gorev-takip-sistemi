@@ -29,6 +29,7 @@ public class Comment {
 
 
     public Comment() {
+        // Spring JPA için bilerek boş constructor oluşturuldu
     }
 
     public Long getCommentId() {

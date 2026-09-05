@@ -93,11 +93,13 @@ class CommentServiceTest {
                 user.getPublicId()
         );
 
-        when(taskRepository.findByPublicId(task.getPublicId())).thenReturn(Optional.of(task));
+        String taskPublicId = task.getPublicId();
+
+        when(taskRepository.findByPublicId(taskPublicId)).thenReturn(Optional.of(task));
         when(userRepository.findByPublicId(user.getPublicId())).thenReturn(Optional.of(user));
 
         // When & Then
-        assertThatThrownBy(() -> commentService.addComment(task.getPublicId(), request))
+        assertThatThrownBy(() -> commentService.addComment(taskPublicId, request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Kullanıcı bu projede yok");
 

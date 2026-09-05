@@ -1,17 +1,60 @@
 services:
+  # Uygulamanın MySQL Veritabanı
   mysql:
     image: mysql:8.0
     container_name: gorev-takip-sistemi
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: taskdb
-      MYSQL_USER: ${DB_USERNAME:ismail}
-      MYSQL_PASSWORD: ${DB_PASSWORD:1234}
+      MYSQL_USER: ${DB_USERNAME:-ismail}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-1234}
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
+  # SonarQube'ün Veritabanı (PostgreSQL)
+  sonardb:
+    image: postgres:16-alpine
+    container_name: sonarqube-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminismail
+      POSTGRES_DB: sonar
+    volumes:
+      - sonardb_data:/var/lib/postgresql/data
+    networks:
+      - sonar-net
+
+  # En Güncel SonarQube Community Sürümü
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    restart: unless-stopped
+    depends_on:
+      - sonardb
+    environment:
+      SONAR_JDBC_USERNAME: admin
+      SONAR_JDBC_PASSWORD: adminismail
+      SONAR_JDBC_URL: jdbc:postgresql://sonardb:5432/sonar
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_extensions:/opt/sonarqube/extensions
+      - sonar_logs:/opt/sonarqube/logs
+    networks:
+      - sonar-net
+
 volumes:
   mysql_data:
+  sonardb_data:
+  sonar_data:
+  sonar_extensions:
+  sonar_logs:
+
+networks:
+  sonar-net:
+    driver: bridge
