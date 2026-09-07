@@ -9,6 +9,7 @@ import com.ismailcolak.gorev_takip_sistemi.entities.User;
 import com.ismailcolak.gorev_takip_sistemi.repositories.CommentRepository;
 import com.ismailcolak.gorev_takip_sistemi.repositories.TaskRepository;
 import com.ismailcolak.gorev_takip_sistemi.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +30,10 @@ public class CommentService {
 
     public CommentResponse addComment(String taskPublicId, CreateCommentRequest request) {
         Task task = taskRepository.findByPublicId(taskPublicId)
-                .orElseThrow(() -> new IllegalArgumentException("Yorum ekleme başarısız\nGörev bulunamadı: " + taskPublicId));
+                .orElseThrow(() -> new EntityNotFoundException("Yorum ekleme başarısız\nGörev bulunamadı: " + taskPublicId));
 
         User user = userRepository.findByPublicId(request.userPublicId())
-                .orElseThrow(() -> new IllegalArgumentException("Yorum ekleme başarısız\nKullanıcı bulunamadı: " + request.userPublicId()));
+                .orElseThrow(() -> new EntityNotFoundException("Yorum ekleme başarısız\nKullanıcı bulunamadı: " + request.userPublicId()));
 
         if (!isMemberOfProject(user, task.getProject())) {
             throw new IllegalArgumentException("Yorum ekleme başarısız\nKullanıcı bu projede yok:" + request.userPublicId());
@@ -74,6 +75,6 @@ public class CommentService {
 
     private boolean isMemberOfProject(User user, Project project) {
         return user.getProjects().stream()
-                .anyMatch(p -> p.getPublicId().equals(project.getPublicId()));
+                .anyMatch(p -> p.getProjectId().equals(project.getProjectId()));
     }
 }

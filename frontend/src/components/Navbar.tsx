@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckSquare, FolderPlus, Plus, UserPlus } from 'lucide-react';
+import { CheckSquare, FolderPlus, Plus, UserPlus, Users } from 'lucide-react';
 import type { ProjectResponse } from '../types';
 
 interface NavbarProps {
@@ -9,6 +9,7 @@ interface NavbarProps {
   onOpenNewTaskModal: () => void;
   onOpenNewProjectModal: () => void;
   onOpenNewUserModal: () => void;
+  onOpenAddUserToProjectModal: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -18,6 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenNewTaskModal,
   onOpenNewProjectModal,
   onOpenNewUserModal,
+  onOpenAddUserToProjectModal,
 }) => {
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-xs">
@@ -77,6 +79,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <UserPlus className="w-4 h-4 mr-1.5 text-slate-500" />
             <span className="hidden sm:inline">Kullanıcı Ekle</span>
+          </button>
+
+          {/* Add User to Project Button */}
+          <button
+            onClick={onOpenAddUserToProjectModal}
+            disabled={!selectedProject}
+            title="Mevcut Kullanıcıyı Projeye Ekle"
+            className="inline-flex items-center px-3 py-2 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-xs"
+          >
+            <Users className="w-4 h-4 mr-1.5 text-slate-500" />
+            <span className="hidden sm:inline">Projeye Kullanıcı Ekle</span>
           </button>
 
           {/* Create Task CTA */}

@@ -33,7 +33,7 @@ public class TaskService {
         User user = null;
         if (request.assignedUserPublicId() != null && !request.assignedUserPublicId().isBlank()) {
             user = userRepository.findByPublicId(request.assignedUserPublicId())
-                    .orElseThrow(() -> new IllegalArgumentException("Görev oluşturma başarısız\nKullanıcı bulunamadı: " + request.assignedUserPublicId()));
+                    .orElseThrow(() -> new EntityNotFoundException("Görev oluşturma başarısız\nKullanıcı bulunamadı: " + request.assignedUserPublicId()));
         }
 
         if (user != null && !isMemberOfProject(user, project)) {
@@ -56,10 +56,10 @@ public class TaskService {
 
     public TaskResponse assignTask(String taskPublicId, String userPublicId) {
         Task task = taskRepository.findByPublicId(taskPublicId)
-                .orElseThrow(() -> new IllegalArgumentException("Görev atama başarısız\nGörev bulunamadı: " + taskPublicId));
+                .orElseThrow(() -> new EntityNotFoundException("Görev atama başarısız\nGörev bulunamadı: " + taskPublicId));
 
         User user = userRepository.findByPublicId(userPublicId)
-                .orElseThrow(() -> new IllegalArgumentException("Görev atama başarısız\nKullanıcı bulunamadı: " + userPublicId));
+                .orElseThrow(() -> new EntityNotFoundException("Görev atama başarısız\nKullanıcı bulunamadı: " + userPublicId));
 
         if (!isMemberOfProject(user, task.getProject())) {
             throw new IllegalArgumentException("Görev atama başarısız\nKullanıcı " + userPublicId + " bu projede " + taskPublicId + " değil");
@@ -74,7 +74,7 @@ public class TaskService {
 
     public TaskResponse updateTaskStatus(String taskPublicId, UpdateTaskStatusRequest request) {
         Task task = taskRepository.findByPublicId(taskPublicId)
-                .orElseThrow(() -> new IllegalArgumentException("Görev atama başarısız\nGörev bulunamadı: " + taskPublicId));
+                .orElseThrow(() -> new EntityNotFoundException("Görev güncelleme başarısız\nGörev bulunamadı: " + taskPublicId));
 
         task.setTaskStatus(request.status());
         taskRepository.save(task);
@@ -100,7 +100,7 @@ public class TaskService {
 
     public TaskResponse getTaskByPublicId(String taskPublicId) {
         Task task = taskRepository.findByPublicId(taskPublicId)
-                .orElseThrow(() -> new IllegalArgumentException("Görev getirme başarısız\nGörev bulunamadı: " + taskPublicId));
+                .orElseThrow(() -> new EntityNotFoundException("Görev getirme başarısız\nGörev bulunamadı: " + taskPublicId));
 
         return mapToResponse(task);
     }
@@ -120,7 +120,7 @@ public class TaskService {
 
     private boolean isMemberOfProject(User user, Project project) {
         return user.getProjects().stream()
-                .anyMatch(p -> p.getPublicId().equals(project.getPublicId()));
+                .anyMatch(p -> p.getProjectId().equals(project.getProjectId()));
     }
 }
 

@@ -5,6 +5,7 @@ import { CreateTaskModal } from './components/CreateTaskModal';
 import { TaskDetailModal } from './components/TaskDetailModal';
 import { CreateProjectModal } from './components/CreateProjectModal';
 import { CreateUserModal } from './components/CreateUserModal';
+import { AddUserToProjectModal } from './components/AddUserToProjectModal';
 import type {
   CreateProjectRequest,
   CreateTaskRequest,
@@ -37,6 +38,7 @@ export const App: React.FC = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isAddUserToProjectModalOpen, setIsAddUserToProjectModalOpen] = useState(false);
   const [activeTaskDetail, setActiveTaskDetail] = useState<TaskResponse | null>(null);
 
   // Initial Load: Projects & Users
@@ -127,6 +129,10 @@ export const App: React.FC = () => {
     return newUser;
   };
 
+  const handleAddUserToProject = async (userPublicId: string, projectPublicId: string) => {
+    await userApi.addUserToProject(userPublicId, projectPublicId);
+  };
+
   const handleTaskUpdatedInModal = (updatedTask: TaskResponse) => {
     setTasks((prev) =>
       prev.map((t) => (t.publicId === updatedTask.publicId ? updatedTask : t))
@@ -159,6 +165,7 @@ export const App: React.FC = () => {
         onOpenNewTaskModal={() => setIsTaskModalOpen(true)}
         onOpenNewProjectModal={() => setIsProjectModalOpen(true)}
         onOpenNewUserModal={() => setIsUserModalOpen(true)}
+        onOpenAddUserToProjectModal={() => setIsAddUserToProjectModalOpen(true)}
       />
 
       {/* Main Container */}
@@ -297,6 +304,14 @@ export const App: React.FC = () => {
         onClose={() => setIsUserModalOpen(false)}
         onSubmit={handleCreateUser}
         currentProject={selectedProject}
+      />
+
+      <AddUserToProjectModal
+        isOpen={isAddUserToProjectModalOpen}
+        onClose={() => setIsAddUserToProjectModalOpen(false)}
+        project={selectedProject}
+        allUsers={users}
+        onAddUser={handleAddUserToProject}
       />
     </div>
   );

@@ -38,5 +38,13 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     return {} as T;
   }
 
+  const contentType = response.headers.get('content-type');
+  const contentLength = response.headers.get('content-length');
+
+  // Empty bodyguard: skip JSON parse if body is empty
+  if (contentLength === '0' || !contentType?.includes('application/json')) {
+    return {} as T;
+  }
+
   return response.json();
 }
