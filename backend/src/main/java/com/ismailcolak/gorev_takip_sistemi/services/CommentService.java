@@ -75,6 +75,6 @@ public class CommentService {
 
     private boolean isMemberOfProject(User user, Project project) {
         return user.getProjects().stream()
-                .anyMatch(p -> p.getProjectId().equals(project.getProjectId()));
+                .anyMatch(p -> p.getPublicId().equals(project.getPublicId()));
     }
 }

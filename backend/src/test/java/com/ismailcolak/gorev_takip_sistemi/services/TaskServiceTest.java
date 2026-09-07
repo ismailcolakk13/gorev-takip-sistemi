@@ -133,8 +133,8 @@ class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("Kullanıcı bulunamazsa görev oluştururken IllegalArgumentException fırlatılmalı")
-    void createTask_WhenUserNotFound_ShouldThrowIllegalArgumentException() {
+    @DisplayName("Kullanıcı bulunamazsa görev oluştururken EntityNotFoundException fırlatılmalı")
+    void createTask_WhenUserNotFound_ShouldThrowEntityNotFoundException() {
         // Given
         CreateTaskRequest request = new CreateTaskRequest(
                 "Görev Başlığı",
@@ -149,7 +149,7 @@ class TaskServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> taskService.createTask(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Kullanıcı bulunamadı");
 
         verify(taskRepository, never()).save(any(Task.class));
@@ -229,8 +229,8 @@ class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("Görev bulunamazsa durum güncellenirken IllegalArgumentException fırlatılmalı")
-    void updateTaskStatus_WhenTaskNotFound_ShouldThrowIllegalArgumentException() {
+    @DisplayName("Görev bulunamazsa durum güncellenirken EntityNotFoundException fırlatılmalı")
+    void updateTaskStatus_WhenTaskNotFound_ShouldThrowEntityNotFoundException() {
         // Given
         String taskPublicId = "olmayan-gorev-id";
         UpdateTaskStatusRequest request = new UpdateTaskStatusRequest(TaskStatus.COMPLETED);
@@ -239,7 +239,7 @@ class TaskServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> taskService.updateTaskStatus(taskPublicId, request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Görev bulunamadı");
     }
 
@@ -268,8 +268,8 @@ class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("Görev bulunamazsa görev atarken IllegalArgumentException fırlatılmalı")
-    void assignTask_WhenTaskNotFound_ShouldThrowIllegalArgumentException() {
+    @DisplayName("Görev bulunamazsa görev atarken EntityNotFoundException fırlatılmalı")
+    void assignTask_WhenTaskNotFound_ShouldThrowEntityNotFoundException() {
         // Given
         String taskPublicId = "olmayan-gorev-id";
         String userPublicId = sampleUser.getPublicId();
@@ -278,13 +278,13 @@ class TaskServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> taskService.assignTask(taskPublicId, userPublicId))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Görev bulunamadı");
     }
 
     @Test
-    @DisplayName("Kullanıcı bulunamazsa görev atarken IllegalArgumentException fırlatılmalı")
-    void assignTask_WhenUserNotFound_ShouldThrowIllegalArgumentException() {
+    @DisplayName("Kullanıcı bulunamazsa görev atarken EntityNotFoundException fırlatılmalı")
+    void assignTask_WhenUserNotFound_ShouldThrowEntityNotFoundException() {
         // Given
         Task task = new Task();
         task.setTaskName("Mevcut Görev");
@@ -297,7 +297,7 @@ class TaskServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> taskService.assignTask(taskPublicId, userPublicId))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Kullanıcı bulunamadı");
     }
 
@@ -387,8 +387,8 @@ class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("Görev bulunamazsa publicId ile getirirken IllegalArgumentException fırlatılmalı")
-    void getTaskByPublicId_WhenTaskNotFound_ShouldThrowIllegalArgumentException() {
+    @DisplayName("Görev bulunamazsa publicId ile getirirken EntityNotFoundException fırlatılmalı")
+    void getTaskByPublicId_WhenTaskNotFound_ShouldThrowEntityNotFoundException() {
         // Given
         String taskPublicId = "olmayan-gorev-id";
 
@@ -396,7 +396,7 @@ class TaskServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> taskService.getTaskByPublicId(taskPublicId))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Görev bulunamadı");
     }
 }
